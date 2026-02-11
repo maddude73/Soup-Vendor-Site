@@ -2,7 +2,7 @@ import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Leaf, ChefHat, Heart } from "lucide-react";
+import { ArrowRight, Leaf, ChefHat, Heart, HandHeart } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -144,6 +144,26 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Donations Section */}
+      <section className="py-12 sm:py-24 bg-muted/30">
+        <div className="container px-4 md:px-6">
+          <div className="max-w-2xl mx-auto text-center space-y-6">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary mx-auto">
+              <HandHeart className="h-8 w-8" />
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold">Support Our Mission</h2>
+            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
+              Every donation helps us continue crafting nourishing soups and giving back to our community. Your generosity keeps our kitchen warm and our mission alive.
+            </p>
+            <a href="https://donate.stripe.com" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="rounded-full text-lg bg-primary text-primary-foreground border-primary-border shadow-xl mt-4" data-testid="button-donate">
+                Donate Now <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
