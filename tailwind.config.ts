@@ -83,6 +83,9 @@ export default {
         },
       },
       fontFamily: {
+        display: ["Lora", "serif"],
+        body: ["DM Sans", "sans-serif"],
+        hand: ["Architects Daughter", "cursive"],
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
