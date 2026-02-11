@@ -1,4 +1,4 @@
-# Soulful Soups - Online Soup Ordering Website
+# Athena's Soulful Soups - Online Soup Ordering Website
 
 ## Overview
 A full-stack soup ordering platform where customers can browse weekly soups, place orders, make special requests (with upcharge), and pay online. Site owners can manage products, inventory, and orders from an admin dashboard.

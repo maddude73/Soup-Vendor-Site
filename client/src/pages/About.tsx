@@ -22,7 +22,7 @@ export default function About() {
               It started in a small kitchen with a big pot and an even bigger dream. We believe that soup is more than just a meal—it's a hug in a bowl. Our founder, growing up in a home where the stove was always warm, wanted to share that feeling of comfort and belonging with the world.
             </p>
             <p className="mt-4">
-              Soulful Soups was born out of a desire to slow down. In a fast-paced world, we take the time to simmer our broths for hours, chop our vegetables by hand, and season everything to perfection.
+              Athena's Soulful Soups was born out of a desire to slow down. In a fast-paced world, we take the time to simmer our broths for hours, chop our vegetables by hand, and season everything to perfection.
             </p>
           </div>
         </section>

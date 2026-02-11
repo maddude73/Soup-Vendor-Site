@@ -32,9 +32,9 @@ function Router() {
       </main>
       <footer className="bg-secondary text-secondary-foreground py-8 sm:py-12 text-center">
         <div className="container mx-auto px-4">
-          <p className="font-display font-bold text-xl sm:text-2xl mb-3 sm:mb-4">Soulful Soups</p>
+          <p className="font-display font-bold text-xl sm:text-2xl mb-3 sm:mb-4">Athena's Soulful Soups</p>
           <p className="text-sm opacity-60">Made with love in our kitchen, served in yours.</p>
-          <p className="text-xs opacity-40 mt-6 sm:mt-8">&copy; {new Date().getFullYear()} Soulful Soups. All rights reserved.</p>
+          <p className="text-xs opacity-40 mt-6 sm:mt-8">&copy; {new Date().getFullYear()} Athena's Soulful Soups. All rights reserved.</p>
         </div>
       </footer>
     </div>

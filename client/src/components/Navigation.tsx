@@ -25,10 +25,10 @@ export function Navigation() {
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 min-w-0" data-testid="link-home-logo">
           <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-hand text-lg sm:text-xl font-bold shadow-lg shrink-0">
-            S
+            A
           </div>
           <span className="font-display text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
-            Soulful Soups
+            Athena's Soulful Soups
           </span>
         </Link>
 
