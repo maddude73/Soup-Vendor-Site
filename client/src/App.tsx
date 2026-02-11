@@ -10,6 +10,7 @@ import Cart from "@/pages/Cart";
 import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
 import About from "@/pages/About";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,12 +26,13 @@ function Router() {
           <Route path="/auth" component={Auth} />
           <Route path="/admin" component={Admin} />
           <Route path="/about" component={About} />
+          <Route path="/profile" component={Profile} />
           <Route component={NotFound} />
         </Switch>
       </main>
       <footer className="bg-secondary text-secondary-foreground py-12 text-center">
         <div className="container mx-auto px-4">
-          <p className="font-display font-bold text-2xl mb-4">Soulful Soups</p>
+          <p className="font-display font-bold text-2xl mb-4">Soulful Sou Soups</p>
           <p className="text-sm opacity-60">Made with love in our kitchen, served in yours.</p>
           <p className="text-xs opacity-40 mt-8">&copy; {new Date().getFullYear()} Soulful Soups. All rights reserved.</p>
         </div>
