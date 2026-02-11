@@ -17,6 +17,7 @@ export interface IStorage {
   // Orders
   createOrder(userId: string, items: CartItem[], totalAmount: number): Promise<Order>;
   getOrders(userId?: string): Promise<(Order & { items: any[] })[]>;
+  updateOrderStatus(orderId: number, status: string, stripePaymentIntentId?: string): Promise<Order>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -73,6 +74,13 @@ export class DatabaseStorage implements IStorage {
 
       return order;
     });
+  }
+
+  async updateOrderStatus(orderId: number, status: string, stripePaymentIntentId?: string): Promise<Order> {
+    const updateData: any = { status };
+    if (stripePaymentIntentId) updateData.stripePaymentIntentId = stripePaymentIntentId;
+    const [updated] = await db.update(orders).set(updateData).where(eq(orders.id, orderId)).returning();
+    return updated;
   }
 
   async getOrders(userId?: string): Promise<(Order & { items: any[] })[]> {

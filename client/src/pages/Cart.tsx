@@ -1,10 +1,70 @@
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
+import { Trash2, ArrowRight, ArrowLeft, Loader2, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateOrder } from "@/hooks/use-orders";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
+function CheckoutForm({ orderId, onSuccess }: { orderId: number; onSuccess: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      redirect: "if_required",
+    });
+
+    if (error) {
+      setErrorMessage(error.message || "Payment failed");
+      setIsProcessing(false);
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      await fetch(`/api/orders/${orderId}/confirm-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+      });
+      toast({ title: "Payment Successful!", description: "Your soulful soups are on their way." });
+      onSuccess();
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      {errorMessage && (
+        <p className="text-destructive text-sm" data-testid="text-payment-error">{errorMessage}</p>
+      )}
+      <Button
+        type="submit"
+        disabled={!stripe || isProcessing}
+        className="w-full"
+        size="lg"
+        data-testid="button-confirm-payment"
+      >
+        {isProcessing ? (
+          <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
+        ) : (
+          <><CreditCard className="h-4 w-4 mr-2" /> Pay Now</>
+        )}
+      </Button>
+    </form>
+  );
+}
 
 export default function Cart() {
   const { items, removeItem, subtotal, clearCart } = useCart();
@@ -12,6 +72,28 @@ export default function Cart() {
   const [, setLocation] = useLocation();
   const createOrder = useCreateOrder();
   const { toast } = useToast();
+  const [checkoutState, setCheckoutState] = useState<{
+    clientSecret: string;
+    orderId: number;
+    amount: number;
+  } | null>(null);
+
+  const { data: stripeConfig } = useQuery<{ publishableKey: string }>({
+    queryKey: ["/api/stripe/publishable-key"],
+    queryFn: async () => {
+      const res = await fetch("/api/stripe/publishable-key");
+      if (!res.ok) return null;
+      return res.json();
+    },
+  });
+
+  const [stripePromise, setStripePromise] = useState<any>(null);
+
+  useEffect(() => {
+    if (stripeConfig?.publishableKey) {
+      setStripePromise(loadStripe(stripeConfig.publishableKey));
+    }
+  }, [stripeConfig?.publishableKey]);
 
   const handleCheckout = async () => {
     if (!user) {
@@ -21,22 +103,39 @@ export default function Cart() {
     }
 
     try {
-      await createOrder.mutateAsync({
+      const order = await createOrder.mutateAsync({
         items: items.map(item => ({
           productId: item.product.id,
           quantity: item.quantity,
           specialRequests: item.specialRequests
         }))
       });
-      clearCart();
-      toast({ title: "Order Placed!", description: "We've received your order. Check your email for details." });
-      setLocation("/"); // Or to an order success page
-    } catch (error) {
-      // Error handled in hook
+
+      const res = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Failed to create payment");
+      }
+
+      const { clientSecret, amount } = await res.json();
+      setCheckoutState({ clientSecret, orderId: order.id, amount });
+    } catch (error: any) {
+      toast({ title: "Checkout Failed", description: error.message, variant: "destructive" });
     }
   };
 
-  if (items.length === 0) {
+  const handlePaymentSuccess = () => {
+    clearCart();
+    setCheckoutState(null);
+    setLocation("/profile");
+  };
+
+  if (items.length === 0 && !checkoutState) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
         <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6 text-muted-foreground">
@@ -45,8 +144,49 @@ export default function Cart() {
         <h1 className="font-display text-3xl font-bold mb-4">Your bowl is empty</h1>
         <p className="text-muted-foreground mb-8">Looks like you haven't added any delicious soups yet.</p>
         <Link href="/menu">
-          <Button size="lg" className="rounded-full">Browse Menu</Button>
+          <Button size="lg" className="rounded-full" data-testid="button-browse-menu">Browse Menu</Button>
         </Link>
+      </div>
+    );
+  }
+
+  if (checkoutState && stripePromise) {
+    return (
+      <div className="min-h-screen bg-muted/20 py-16 page-enter-active">
+        <div className="container px-4 md:px-6 max-w-lg mx-auto">
+          <h1 className="font-display text-4xl font-bold mb-2">Payment</h1>
+          <p className="text-muted-foreground mb-8">Complete your payment to confirm your order.</p>
+
+          <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
+            <div className="mb-6 pb-6 border-b">
+              <div className="flex justify-between font-bold text-lg">
+                <span>Order Total</span>
+                <span>${(checkoutState.amount / 100).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: checkoutState.clientSecret,
+                appearance: { theme: "stripe" },
+              }}
+            >
+              <CheckoutForm orderId={checkoutState.orderId} onSuccess={handlePaymentSuccess} />
+            </Elements>
+          </div>
+
+          <div className="mt-6 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => setCheckoutState(null)}
+              className="text-sm text-muted-foreground"
+              data-testid="button-back-to-cart"
+            >
+              <ArrowLeft className="mr-1 h-3 w-3" /> Back to Cart
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -57,11 +197,9 @@ export default function Cart() {
         <h1 className="font-display text-4xl font-bold mb-8">Your Order</h1>
         
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="md:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={`${item.product.id}-${item.specialRequests}`} className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 flex gap-4">
-                 {/* delicious soup thumbnail */}
+              <div key={`${item.product.id}-${item.specialRequests}`} className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 flex gap-4" data-testid={`card-cart-item-${item.product.id}`}>
                 <img 
                   src={item.product.imageUrl} 
                   alt={item.product.name} 
@@ -75,7 +213,7 @@ export default function Cart() {
                       <p className="font-semibold">${((item.product.price * item.quantity) / 100).toFixed(2)}</p>
                     </div>
                     {item.specialRequests && (
-                      <p className="text-sm text-muted-foreground mt-1 italic">Note: {item.specialRequests}</p>
+                      <p className="text-sm text-muted-foreground mt-1 italic">Note: {item.specialRequests} (+$2.00)</p>
                     )}
                   </div>
                   
@@ -84,8 +222,9 @@ export default function Cart() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      className="text-destructive"
                       onClick={() => removeItem(item.product.id)}
+                      data-testid={`button-remove-item-${item.product.id}`}
                     >
                       <Trash2 className="h-4 w-4 mr-1" /> Remove
                     </Button>
@@ -95,7 +234,6 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Summary */}
           <div className="md:col-span-1">
             <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 sticky top-24">
               <h3 className="font-display text-xl font-bold mb-6">Order Summary</h3>
@@ -116,13 +254,17 @@ export default function Cart() {
               </div>
 
               <Button 
-                className="w-full h-12 text-lg font-semibold rounded-xl" 
+                className="w-full text-lg font-semibold rounded-xl" 
                 size="lg"
                 onClick={handleCheckout}
                 disabled={createOrder.isPending}
+                data-testid="button-proceed-checkout"
               >
-                {createOrder.isPending ? "Processing..." : "Proceed to Checkout"}
-                {!createOrder.isPending && <ArrowRight className="ml-2 h-4 w-4" />}
+                {createOrder.isPending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
+                ) : (
+                  <>Proceed to Checkout <ArrowRight className="ml-2 h-4 w-4" /></>
+                )}
               </Button>
 
               <div className="mt-6 text-center">
