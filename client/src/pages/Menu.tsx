@@ -14,8 +14,8 @@ export default function Menu() {
      p.description.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const soups = activeProducts?.filter(p => p.category === "soup");
-  const merch = activeProducts?.filter(p => p.category === "merch");
+  const soups = activeProducts?.filter(p => p.category.toLowerCase() === "soup");
+  const merch = activeProducts?.filter(p => p.category.toLowerCase() === "merch");
 
   return (
     <div className="min-h-screen bg-background py-8 sm:py-16 page-enter-active">

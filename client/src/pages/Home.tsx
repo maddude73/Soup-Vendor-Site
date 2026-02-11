@@ -10,9 +10,9 @@ import { useState } from "react";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
-  const featuredSoups = products?.filter(p => p.isActive && p.category === "soup").slice(0, 3);
-  const featuredMerch = products?.filter(p => p.isActive && p.category === "merch").slice(0, 3);
-  const donationProduct = products?.find(p => p.isActive && p.category === "donation");
+  const featuredSoups = products?.filter(p => p.isActive && p.category.toLowerCase() === "soup").slice(0, 3);
+  const featuredMerch = products?.filter(p => p.isActive && p.category.toLowerCase() === "merch").slice(0, 3);
+  const donationProduct = products?.find(p => p.isActive && p.category.toLowerCase() === "donation");
   const { addItem } = useCart();
   const { toast } = useToast();
   const [donationQty, setDonationQty] = useState(1);
