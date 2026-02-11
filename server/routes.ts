@@ -237,7 +237,7 @@ export async function registerRoutes(
     await storage.createProduct({
       name: "Donation",
       description: "Support our mission to bring nourishing soups to the community. Every dollar helps keep our kitchen warm and our hearts full.",
-      price: 500,
+      price: 100,
       category: "donation",
       imageUrl: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&q=80&w=800",
       inventoryCount: 9999,

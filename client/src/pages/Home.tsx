@@ -2,7 +2,8 @@ import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Leaf, ChefHat, Heart, HandHeart, Plus, Minus, ShoppingCart } from "lucide-react";
+import { ArrowRight, Leaf, ChefHat, Heart, HandHeart, ShoppingCart } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +16,24 @@ export default function Home() {
   const donationProduct = products?.find(p => p.isActive && p.category.toLowerCase() === "donation");
   const { addItem } = useCart();
   const { toast } = useToast();
-  const [donationQty, setDonationQty] = useState(1);
+  const [donationAmount, setDonationAmount] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
+
+  const presetAmounts = [5, 10, 25, 50];
+
+  const handlePresetClick = (amount: number) => {
+    setSelectedPreset(amount);
+    setDonationAmount(String(amount));
+  };
+
+  const handleCustomInput = (value: string) => {
+    const cleaned = value.replace(/[^0-9.]/g, "");
+    setDonationAmount(cleaned);
+    setSelectedPreset(null);
+  };
+
+  const parsedAmount = parseFloat(donationAmount);
+  const isValidDonation = !isNaN(parsedAmount) && parsedAmount >= 1;
 
   if (isLoading) {
     return (
@@ -164,40 +182,49 @@ export default function Home() {
               <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
                 Every donation helps us continue crafting nourishing soups and giving back to our community. Your generosity keeps our kitchen warm and our mission alive.
               </p>
-              <div className="flex flex-col items-center gap-4 mt-4">
-                <p className="text-lg font-medium">${(donationProduct.price / 100).toFixed(2)} per donation</p>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setDonationQty(q => Math.max(1, q - 1))}
-                    disabled={donationQty <= 1}
-                    data-testid="button-donation-minus"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="text-2xl font-bold font-mono w-12 text-center" data-testid="text-donation-qty">{donationQty}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setDonationQty(q => q + 1)}
-                    data-testid="button-donation-plus"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+              <div className="flex flex-col items-center gap-5 mt-4">
+                <div className="flex flex-wrap justify-center gap-3">
+                  {presetAmounts.map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={selectedPreset === amount ? "default" : "outline"}
+                      className={`rounded-full min-w-[4.5rem] text-base font-bold ${selectedPreset === amount ? "bg-primary text-primary-foreground border-primary-border" : ""}`}
+                      onClick={() => handlePresetClick(amount)}
+                      data-testid={`button-donation-${amount}`}
+                    >
+                      ${amount}
+                    </Button>
+                  ))}
                 </div>
-                <p className="text-sm text-muted-foreground">Total: ${((donationProduct.price * donationQty) / 100).toFixed(2)}</p>
+                <div className="relative w-48">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="Custom amount"
+                    className="pl-8 text-center text-lg font-medium rounded-full"
+                    value={donationAmount}
+                    onChange={(e) => handleCustomInput(e.target.value)}
+                    data-testid="input-donation-custom"
+                  />
+                </div>
+                {donationAmount && !isValidDonation && (
+                  <p className="text-sm text-destructive">Minimum donation is $1.00</p>
+                )}
                 <Button
                   size="lg"
                   className="rounded-full text-lg bg-primary text-primary-foreground border-primary-border shadow-xl"
+                  disabled={!isValidDonation}
                   onClick={() => {
-                    addItem(donationProduct, donationQty);
-                    toast({ title: "Donation added to cart", description: `$${((donationProduct.price * donationQty) / 100).toFixed(2)} donation added. Thank you!` });
-                    setDonationQty(1);
+                    const qty = Math.round(parsedAmount);
+                    addItem(donationProduct, qty);
+                    toast({ title: "Donation added to cart", description: `$${qty.toFixed(2)} donation added. Thank you!` });
+                    setDonationAmount("");
+                    setSelectedPreset(null);
                   }}
                   data-testid="button-add-donation"
                 >
-                  <ShoppingCart className="mr-2 h-5 w-5" /> Add Donation to Cart
+                  <ShoppingCart className="mr-2 h-5 w-5" /> {isValidDonation ? `Add $${Math.round(parsedAmount).toFixed(2)} Donation` : "Add Donation to Cart"}
                 </Button>
               </div>
             </div>
