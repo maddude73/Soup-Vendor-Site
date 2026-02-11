@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, type Product } from "@shared/schema";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, Package, User, Mail, Phone, MapPin } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Package, User, Mail, Phone, MapPin, Upload, ImageIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -132,6 +132,7 @@ function ProductsTable() {
 function ProductForm({ product, onSuccess }: { product: Product | null, onSuccess: () => void }) {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const [isUploading, setIsUploading] = useState(false);
   
   const form = useForm<InsertProduct>({
     resolver: zodResolver(insertProductSchema),
@@ -147,12 +148,45 @@ function ProductForm({ product, onSuccess }: { product: Product | null, onSucces
       name: "",
       description: "",
       price: 0,
-      imageUrl: "https://images.unsplash.com/photo-1547592166-23acbe3a624b", // Default soup image
+      imageUrl: "",
       category: "Soup",
       inventoryCount: 0,
       isActive: true,
     }
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const res = await fetch("/api/uploads/request-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type || "image/jpeg",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await res.json();
+
+      const uploadRes = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type || "image/jpeg" },
+      });
+      if (!uploadRes.ok) throw new Error("Failed to upload image");
+
+      form.setValue("imageUrl", objectPath);
+    } catch (err) {
+      console.error("Upload error:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const onSubmit = async (data: InsertProduct) => {
     try {
@@ -221,8 +255,56 @@ function ProductForm({ product, onSuccess }: { product: Product | null, onSucces
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL (Unsplash)</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel>Product Image</FormLabel>
+              <div className="space-y-3">
+                {field.value && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden bg-muted border">
+                    <img 
+                      src={field.value} 
+                      alt="Product preview" 
+                      className="w-full h-full object-cover"
+                      data-testid="img-product-preview"
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2 items-center">
+                  <label className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      data-testid="input-product-image-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      disabled={isUploading}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const input = (e.currentTarget.parentElement as HTMLLabelElement)?.querySelector('input[type="file"]') as HTMLInputElement;
+                        input?.click();
+                      }}
+                      data-testid="button-upload-image"
+                    >
+                      {isUploading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Uploading...</>
+                      ) : (
+                        <><Upload className="h-4 w-4 mr-2" /> {field.value ? "Change Image" : "Upload Image"}</>
+                      )}
+                    </Button>
+                  </label>
+                </div>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    placeholder="Or paste an image URL" 
+                    className="text-sm"
+                    data-testid="input-product-image-url"
+                  />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}
