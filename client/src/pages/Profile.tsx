@@ -4,10 +4,11 @@ import { Order } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Loader2, Package, User } from "lucide-react";
+import { Loader2, Package, User, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Profile() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout, isLoggingOut } = useAuth();
 
   const { data: orders, isLoading: ordersLoading } = useQuery<(Order & { items: any[] })[]>({
     queryKey: ["/api/orders"],
@@ -34,17 +35,28 @@ export default function Profile() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-6 mb-12">
-          <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="h-12 w-12 text-primary" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="flex items-center gap-6">
+            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-12 w-12 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-display font-bold">{user.firstName} {user.lastName}</h1>
+              <p className="text-muted-foreground">{user.email}</p>
+              {user.isAdmin && (
+                <Badge className="mt-2" variant="secondary">Admin Account</Badge>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className="text-4xl font-display font-bold">{user.firstName} {user.lastName}</h1>
-            <p className="text-muted-foreground">{user.email}</p>
-            {user.isAdmin && (
-              <Badge className="mt-2" variant="secondary">Admin Account</Badge>
-            )}
-          </div>
+          <Button 
+            variant="outline" 
+            className="text-destructive border-destructive hover:bg-destructive/10"
+            onClick={() => logout()}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <LogOut className="h-4 w-4 mr-2" />}
+            Log Out
+          </Button>
         </div>
 
         <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
