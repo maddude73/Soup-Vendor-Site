@@ -23,15 +23,15 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen page-enter-active">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-secondary py-24 md:py-32 texture-grain">
+      <section className="relative overflow-hidden bg-secondary py-16 sm:py-24 md:py-32 texture-grain">
         <div className="container relative z-10 px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-8 max-w-3xl mx-auto">
+          <div className="flex flex-col items-center text-center space-y-6 sm:space-y-8 max-w-3xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-display text-5xl md:text-7xl font-bold text-background leading-tight">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold text-background leading-tight">
                 Soup for the <span className="text-primary italic font-hand">Soul</span>
               </h1>
             </motion.div>
@@ -66,9 +66,9 @@ export default function Home() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-20 bg-background">
         <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 text-center">
             <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl">
               <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent">
                 <Leaf className="h-8 w-8" />
@@ -95,11 +95,11 @@ export default function Home() {
       </section>
 
       {/* Featured Menu */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-12 sm:py-24 bg-muted/30">
         <div className="container px-4 md:px-6">
-          <div className="flex justify-between items-end mb-12">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8 sm:mb-12">
             <div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">This Week's Menu</h2>
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">This Week's Menu</h2>
               <p className="text-muted-foreground">Freshly made and ready for your table.</p>
             </div>
             <Link href="/menu">

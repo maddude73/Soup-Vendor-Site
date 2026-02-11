@@ -15,11 +15,11 @@ export default function Menu() {
   );
 
   return (
-    <div className="min-h-screen bg-background py-16 page-enter-active">
+    <div className="min-h-screen bg-background py-8 sm:py-16 page-enter-active">
       <div className="container px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 text-secondary">Our Menu</h1>
-          <p className="text-muted-foreground text-lg mb-8">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-16">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 text-secondary">Our Menu</h1>
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8">
             Seasonal soups made from scratch. Order online and pick up fresh or have it delivered.
           </p>
           

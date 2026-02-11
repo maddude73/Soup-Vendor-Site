@@ -33,15 +33,15 @@ export default function Profile() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8 sm:py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div className="flex items-center gap-6">
-            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-12 w-12 text-primary" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="h-16 w-16 sm:h-24 sm:w-24 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <User className="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
             </div>
-            <div>
-              <h1 className="text-4xl font-display font-bold" data-testid="text-user-name">{user.firstName} {user.lastName}</h1>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-4xl font-display font-bold truncate" data-testid="text-user-name">{user.firstName} {user.lastName}</h1>
               <p className="text-muted-foreground" data-testid="text-user-email">{user.email}</p>
               {user.isAdmin && (
                 <Badge className="mt-2" variant="secondary">Admin Account</Badge>
@@ -60,8 +60,8 @@ export default function Profile() {
           </Button>
         </div>
 
-        <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-2">
-          <Package className="h-6 w-6" />
+        <h2 className="text-xl sm:text-2xl font-display font-bold mb-4 sm:mb-6 flex items-center gap-2">
+          <Package className="h-5 w-5 sm:h-6 sm:w-6" />
           Order History
         </h2>
 

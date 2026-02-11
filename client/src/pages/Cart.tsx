@@ -182,12 +182,12 @@ export default function Cart() {
 
   if (checkoutState && stripePromise) {
     return (
-      <div className="min-h-screen bg-muted/20 py-16 page-enter-active">
+      <div className="min-h-screen bg-muted/20 py-8 sm:py-16 page-enter-active">
         <div className="container px-4 md:px-6 max-w-lg mx-auto">
-          <h1 className="font-display text-4xl font-bold mb-2">Payment</h1>
-          <p className="text-muted-foreground mb-8">Complete your payment to confirm your order.</p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">Payment</h1>
+          <p className="text-muted-foreground mb-6 sm:mb-8">Complete your payment to confirm your order.</p>
 
-          <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
+          <div className="bg-background p-4 sm:p-6 rounded-2xl shadow-sm border border-border/50">
             <div className="mb-6 pb-6 border-b">
               <div className="flex justify-between font-bold text-lg">
                 <span>Order Total</span>
@@ -223,12 +223,12 @@ export default function Cart() {
 
   if (showContactForm) {
     return (
-      <div className="min-h-screen bg-muted/20 py-16 page-enter-active">
+      <div className="min-h-screen bg-muted/20 py-8 sm:py-16 page-enter-active">
         <div className="container px-4 md:px-6 max-w-lg mx-auto">
-          <h1 className="font-display text-4xl font-bold mb-2">Delivery Details</h1>
-          <p className="text-muted-foreground mb-8">We need your contact info to fulfill your order.</p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">Delivery Details</h1>
+          <p className="text-muted-foreground mb-6 sm:mb-8">We need your contact info to fulfill your order.</p>
 
-          <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 space-y-5">
+          <div className="bg-background p-4 sm:p-6 rounded-2xl shadow-sm border border-border/50 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="customer-name" className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" /> Full Name
@@ -335,32 +335,32 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/20 py-16 page-enter-active">
+    <div className="min-h-screen bg-muted/20 py-8 sm:py-16 page-enter-active">
       <div className="container px-4 md:px-6 max-w-4xl">
-        <h1 className="font-display text-4xl font-bold mb-8">Your Order</h1>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Your Order</h1>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           <div className="md:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={`${item.product.id}-${item.specialRequests}`} className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 flex gap-4" data-testid={`card-cart-item-${item.product.id}`}>
+              <div key={`${item.product.id}-${item.specialRequests}`} className="bg-background p-4 sm:p-6 rounded-2xl shadow-sm border border-border/50 flex gap-3 sm:gap-4" data-testid={`card-cart-item-${item.product.id}`}>
                 <img 
                   src={item.product.imageUrl} 
                   alt={item.product.name} 
-                  className="w-24 h-24 object-cover rounded-xl bg-muted"
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl bg-muted shrink-0"
                 />
                 
-                <div className="flex-1 flex flex-col justify-between">
+                <div className="flex-1 flex flex-col justify-between min-w-0">
                   <div>
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-bold text-lg font-display">{item.product.name}</h3>
-                      <p className="font-semibold">${((item.product.price * item.quantity) / 100).toFixed(2)}</p>
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="font-bold text-base sm:text-lg font-display truncate">{item.product.name}</h3>
+                      <p className="font-semibold shrink-0">${((item.product.price * item.quantity) / 100).toFixed(2)}</p>
                     </div>
                     {item.specialRequests && (
-                      <p className="text-sm text-muted-foreground mt-1 italic">Note: {item.specialRequests} (+$2.00)</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 italic">Note: {item.specialRequests} (+$2.00)</p>
                     )}
                   </div>
                   
-                  <div className="flex justify-between items-center mt-4">
+                  <div className="flex justify-between items-center mt-3 sm:mt-4">
                     <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
                     <Button 
                       variant="ghost" 
@@ -378,7 +378,7 @@ export default function Cart() {
           </div>
 
           <div className="md:col-span-1">
-            <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 sticky top-24">
+            <div className="bg-background p-5 sm:p-6 rounded-2xl shadow-sm border border-border/50 sticky top-24">
               <h3 className="font-display text-xl font-bold mb-6">Order Summary</h3>
               
               <div className="space-y-3 mb-6">

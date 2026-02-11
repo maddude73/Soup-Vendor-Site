@@ -23,11 +23,11 @@ export function Navigation() {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2" data-testid="link-home-logo">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-hand text-xl font-bold shadow-lg">
+        <Link href="/" className="flex items-center space-x-2 min-w-0" data-testid="link-home-logo">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-hand text-lg sm:text-xl font-bold shadow-lg shrink-0">
             S
           </div>
-          <span className="font-display text-2xl font-bold text-foreground tracking-tight">
+          <span className="font-display text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
             Soulful Soups
           </span>
         </Link>
@@ -52,7 +52,7 @@ export function Navigation() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
           {user ? (
              <Link href="/profile">
                <Button variant="ghost" size="icon" data-testid="button-profile">

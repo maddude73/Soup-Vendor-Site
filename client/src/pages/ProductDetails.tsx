@@ -41,15 +41,13 @@ export default function ProductDetails() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Menu
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start">
           {/* Image Side */}
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl rustic-shadow">
-             {/* Note: In a real app, use real Unsplash URLs. For now using placeholder logic as requested */}
-            {/* delicious homemade pumpkin soup */}
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl rustic-shadow">
             <img 
               src={product.imageUrl} 
               alt={product.name} 
-              className="w-full h-auto object-cover aspect-square"
+              className="w-full h-auto object-cover aspect-[4/3] sm:aspect-square"
             />
             {isSoldOut && (
                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
@@ -59,9 +57,9 @@ export default function ProductDetails() {
           </div>
 
           {/* Content Side */}
-          <div className="flex flex-col space-y-8">
+          <div className="flex flex-col space-y-6 sm:space-y-8">
             <div>
-              <div className="flex items-center space-x-4 mb-4">
+              <div className="flex items-center flex-wrap gap-2 mb-4">
                 <Badge variant="secondary" className="bg-primary/10 text-primary font-bold tracking-wider uppercase">{product.category}</Badge>
                 {product.inventoryCount < 10 && product.inventoryCount > 0 && (
                   <Badge variant="outline" className="text-orange-600 border-orange-600 animate-pulse">
@@ -69,8 +67,8 @@ export default function ProductDetails() {
                   </Badge>
                 )}
               </div>
-              <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">{product.name}</h1>
-              <div className="text-3xl font-light text-primary font-sans mb-6">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 sm:mb-4">{product.name}</h1>
+              <div className="text-2xl sm:text-3xl font-light text-primary font-sans mb-4 sm:mb-6">
                 ${(product.price / 100).toFixed(2)}
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
@@ -91,10 +89,10 @@ export default function ProductDetails() {
                 />
               </div>
 
-              <div className="flex items-end gap-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4 sm:gap-6">
                 <div className="space-y-3">
                   <Label className="text-base font-semibold">Quantity</Label>
-                  <div className="flex items-center border-2 border-border rounded-xl bg-background">
+                  <div className="flex items-center border-2 border-border rounded-xl bg-background w-fit">
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -119,7 +117,7 @@ export default function ProductDetails() {
 
                 <Button 
                   size="lg" 
-                  className="flex-1 text-lg rounded-xl shadow-lg"
+                  className="flex-1 text-base sm:text-lg rounded-xl shadow-lg"
                   onClick={handleAddToCart}
                   disabled={isSoldOut}
                   data-testid="button-add-to-cart"

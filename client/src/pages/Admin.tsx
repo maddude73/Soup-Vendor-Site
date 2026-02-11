@@ -31,16 +31,16 @@ export default function Admin() {
   if (authLoading || !user) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
 
   return (
-    <div className="min-h-screen bg-muted/20 p-8 page-enter-active">
+    <div className="min-h-screen bg-muted/20 p-4 sm:p-8 page-enter-active">
       <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="font-display text-4xl font-bold">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold">Admin Dashboard</h1>
         </div>
 
-        <Tabs defaultValue="products" className="space-y-8">
+        <Tabs defaultValue="products" className="space-y-6 sm:space-y-8">
           <TabsList className="bg-background border border-border/50 p-1 rounded-xl">
-            <TabsTrigger value="products" className="rounded-lg px-6">Products</TabsTrigger>
-            <TabsTrigger value="orders" className="rounded-lg px-6">Orders</TabsTrigger>
+            <TabsTrigger value="products" className="rounded-lg px-4 sm:px-6 text-sm sm:text-base">Products</TabsTrigger>
+            <TabsTrigger value="orders" className="rounded-lg px-4 sm:px-6 text-sm sm:text-base">Orders</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -65,16 +65,16 @@ function ProductsTable() {
   if (isLoading) return <div>Loading products...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold font-display">Inventory Management</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold font-display">Inventory Management</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingProduct(null)}>
+            <Button onClick={() => setEditingProduct(null)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Add Product
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingProduct ? "Edit Product" : "Create New Product"}</DialogTitle>
             </DialogHeader>
@@ -86,7 +86,36 @@ function ProductsTable() {
         </Dialog>
       </div>
 
-      <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
+      {/* Mobile: Card layout */}
+      <div className="sm:hidden space-y-3">
+        {products?.map((product) => (
+          <div key={product.id} className="bg-background rounded-xl border shadow-sm p-4 flex gap-3 items-center">
+            <img src={product.imageUrl} alt={product.name} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-medium truncate">{product.name}</p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${product.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {product.isActive ? 'Active' : 'Off'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-sm text-muted-foreground">${(product.price / 100).toFixed(2)} · {product.inventoryCount} in stock</span>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => { setEditingProduct(product); setIsDialogOpen(true); }}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteProduct.mutate(product.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Table layout */}
+      <div className="hidden sm:block bg-background rounded-xl border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -384,98 +413,151 @@ function OrdersTable() {
     );
   };
 
+  const renderCustomerInfo = (order: any) => (
+    <div className="flex flex-col space-y-1 text-sm">
+      {order.customerName && (
+        <span className="flex items-center gap-1.5 font-medium" data-testid={`text-customer-name-${order.id}`}>
+          <User className="h-3 w-3 text-muted-foreground shrink-0" />
+          {order.customerName}
+        </span>
+      )}
+      {order.customerEmail && (
+        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-email-${order.id}`}>
+          <Mail className="h-3 w-3 shrink-0" />
+          {order.customerEmail}
+        </span>
+      )}
+      {order.customerPhone && (
+        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-phone-${order.id}`}>
+          <Phone className="h-3 w-3 shrink-0" />
+          {order.customerPhone}
+        </span>
+      )}
+      {order.customerAddress && (
+        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-address-${order.id}`}>
+          <MapPin className="h-3 w-3 shrink-0" />
+          {order.customerAddress}
+        </span>
+      )}
+      {!order.customerName && !order.customerEmail && (
+        <span className="text-muted-foreground italic">No contact info</span>
+      )}
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold font-display">Order Management</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <h2 className="text-xl sm:text-2xl font-bold font-display">Order Management</h2>
       {orders?.length === 0 ? (
-        <div className="bg-background rounded-xl border p-12 text-center text-muted-foreground">
+        <div className="bg-background rounded-xl border p-8 sm:p-12 text-center text-muted-foreground">
           No orders yet.
         </div>
       ) : (
-        <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders?.map((order) => (
-                <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
-                  <TableCell className="font-mono font-medium">#{order.id}</TableCell>
-                  <TableCell className="text-muted-foreground">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col space-y-1 text-sm min-w-[180px]">
-                      {(order as any).customerName && (
-                        <span className="flex items-center gap-1.5 font-medium" data-testid={`text-customer-name-${order.id}`}>
-                          <User className="h-3 w-3 text-muted-foreground shrink-0" />
-                          {(order as any).customerName}
-                        </span>
+        <>
+          {/* Mobile: Card layout */}
+          <div className="sm:hidden space-y-3">
+            {orders?.map((order) => (
+              <div key={order.id} className="bg-background rounded-xl border shadow-sm p-4 space-y-3" data-testid={`row-order-${order.id}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-medium text-sm">#{order.id}</span>
+                    {statusBadge(order.status)}
+                  </div>
+                  <span className="font-mono font-bold">${(order.totalAmount / 100).toFixed(2)}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}
+                </div>
+                {renderCustomerInfo(order)}
+                <div className="border-t pt-2 space-y-1">
+                  {order.items.map((item: any) => (
+                    <span key={item.id} className="text-sm block">
+                      {item.quantity}x {item.product?.name || `Product #${item.productId}`}
+                      {item.specialRequests && (
+                        <span className="text-muted-foreground italic ml-1">({item.specialRequests})</span>
                       )}
-                      {(order as any).customerEmail && (
-                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-email-${order.id}`}>
-                          <Mail className="h-3 w-3 shrink-0" />
-                          {(order as any).customerEmail}
-                        </span>
-                      )}
-                      {(order as any).customerPhone && (
-                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-phone-${order.id}`}>
-                          <Phone className="h-3 w-3 shrink-0" />
-                          {(order as any).customerPhone}
-                        </span>
-                      )}
-                      {(order as any).customerAddress && (
-                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-address-${order.id}`}>
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          {(order as any).customerAddress}
-                        </span>
-                      )}
-                      {!(order as any).customerName && !(order as any).customerEmail && (
-                        <span className="text-muted-foreground italic">No contact info</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col space-y-1">
-                      {order.items.map((item: any) => (
-                        <span key={item.id} className="text-sm">
-                          {item.quantity}x {item.product?.name || `Product #${item.productId}`}
-                          {item.specialRequests && (
-                            <span className="text-muted-foreground italic ml-1">({item.specialRequests})</span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono font-medium">${(order.totalAmount / 100).toFixed(2)}</TableCell>
-                  <TableCell>{statusBadge(order.status)}</TableCell>
-                  <TableCell className="text-right">
-                    {order.status === "paid" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateStatus.mutate({ orderId: order.id, status: "fulfilled" })}
-                        disabled={updateStatus.isPending}
-                        data-testid={`button-fulfill-order-${order.id}`}
-                      >
-                        <Package className="h-3 w-3 mr-1" /> Fulfill
-                      </Button>
-                    )}
-                    {order.status === "fulfilled" && (
-                      <span className="text-sm text-muted-foreground">Completed</span>
-                    )}
-                  </TableCell>
+                    </span>
+                  ))}
+                </div>
+                {order.status === "paid" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => updateStatus.mutate({ orderId: order.id, status: "fulfilled" })}
+                    disabled={updateStatus.isPending}
+                    data-testid={`button-fulfill-order-${order.id}`}
+                  >
+                    <Package className="h-3 w-3 mr-1" /> Fulfill
+                  </Button>
+                )}
+                {order.status === "fulfilled" && (
+                  <p className="text-sm text-center text-muted-foreground">Completed</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: Table layout */}
+          <div className="hidden sm:block bg-background rounded-xl border shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {orders?.map((order) => (
+                  <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
+                    <TableCell className="font-mono font-medium">#{order.id}</TableCell>
+                    <TableCell className="text-muted-foreground">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</TableCell>
+                    <TableCell>
+                      <div className="min-w-[180px]">
+                        {renderCustomerInfo(order)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col space-y-1">
+                        {order.items.map((item: any) => (
+                          <span key={item.id} className="text-sm">
+                            {item.quantity}x {item.product?.name || `Product #${item.productId}`}
+                            {item.specialRequests && (
+                              <span className="text-muted-foreground italic ml-1">({item.specialRequests})</span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono font-medium">${(order.totalAmount / 100).toFixed(2)}</TableCell>
+                    <TableCell>{statusBadge(order.status)}</TableCell>
+                    <TableCell className="text-right">
+                      {order.status === "paid" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateStatus.mutate({ orderId: order.id, status: "fulfilled" })}
+                          disabled={updateStatus.isPending}
+                          data-testid={`button-fulfill-order-${order.id}`}
+                        >
+                          <Package className="h-3 w-3 mr-1" /> Fulfill
+                        </Button>
+                      )}
+                      {order.status === "fulfilled" && (
+                        <span className="text-sm text-muted-foreground">Completed</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );
