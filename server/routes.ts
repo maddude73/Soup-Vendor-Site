@@ -233,6 +233,15 @@ export async function registerRoutes(
       imageUrl: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&q=80&w=800",
       inventoryCount: 50,
     });
+
+    await storage.createProduct({
+      name: "Donation",
+      description: "Support our mission to bring nourishing soups to the community. Every dollar helps keep our kitchen warm and our hearts full.",
+      price: 500,
+      category: "donation",
+      imageUrl: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&q=80&w=800",
+      inventoryCount: 9999,
+    });
   }
 
   return httpServer;

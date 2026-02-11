@@ -2,13 +2,20 @@ import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, Leaf, ChefHat, Heart, HandHeart } from "lucide-react";
+import { ArrowRight, Leaf, ChefHat, Heart, HandHeart, Plus, Minus, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
   const featuredSoups = products?.filter(p => p.isActive && p.category === "soup").slice(0, 3);
   const featuredMerch = products?.filter(p => p.isActive && p.category === "merch").slice(0, 3);
+  const donationProduct = products?.find(p => p.isActive && p.category === "donation");
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const [donationQty, setDonationQty] = useState(1);
 
   if (isLoading) {
     return (
@@ -146,24 +153,57 @@ export default function Home() {
       )}
 
       {/* Donations Section */}
-      <section className="py-12 sm:py-24 bg-muted/30">
-        <div className="container px-4 md:px-6">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary mx-auto">
-              <HandHeart className="h-8 w-8" />
+      {donationProduct && (
+        <section className="py-12 sm:py-24 bg-muted/30">
+          <div className="container px-4 md:px-6">
+            <div className="max-w-2xl mx-auto text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary mx-auto">
+                <HandHeart className="h-8 w-8" />
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold">Support Our Mission</h2>
+              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
+                Every donation helps us continue crafting nourishing soups and giving back to our community. Your generosity keeps our kitchen warm and our mission alive.
+              </p>
+              <div className="flex flex-col items-center gap-4 mt-4">
+                <p className="text-lg font-medium">${(donationProduct.price / 100).toFixed(2)} per donation</p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setDonationQty(q => Math.max(1, q - 1))}
+                    disabled={donationQty <= 1}
+                    data-testid="button-donation-minus"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-2xl font-bold font-mono w-12 text-center" data-testid="text-donation-qty">{donationQty}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setDonationQty(q => q + 1)}
+                    data-testid="button-donation-plus"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">Total: ${((donationProduct.price * donationQty) / 100).toFixed(2)}</p>
+                <Button
+                  size="lg"
+                  className="rounded-full text-lg bg-primary text-primary-foreground border-primary-border shadow-xl"
+                  onClick={() => {
+                    addItem(donationProduct, donationQty);
+                    toast({ title: "Donation added to cart", description: `$${((donationProduct.price * donationQty) / 100).toFixed(2)} donation added. Thank you!` });
+                    setDonationQty(1);
+                  }}
+                  data-testid="button-add-donation"
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" /> Add Donation to Cart
+                </Button>
+              </div>
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold">Support Our Mission</h2>
-            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
-              Every donation helps us continue crafting nourishing soups and giving back to our community. Your generosity keeps our kitchen warm and our mission alive.
-            </p>
-            <a href="https://donate.stripe.com" target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="rounded-full text-lg bg-primary text-primary-foreground border-primary-border shadow-xl mt-4" data-testid="button-donate">
-                Donate Now <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </a>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
