@@ -56,7 +56,9 @@ async function initStripe() {
   }
 }
 
-await initStripe();
+initStripe().catch((err) => {
+  console.error('Failed to initialize Stripe on startup:', err);
+});
 
 // Stripe webhook route MUST be registered BEFORE express.json()
 app.post(
