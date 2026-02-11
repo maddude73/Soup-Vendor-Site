@@ -100,7 +100,7 @@ export async function registerRoutes(
       }
 
       const userId = (req.user as any).claims.sub;
-      const order = await storage.createOrder(userId, input.items, total);
+      const order = await storage.createOrder(userId, input.items, total, input.customerInfo);
       res.status(201).json(order);
     } catch (err: any) {
       console.error("Order creation error:", err);

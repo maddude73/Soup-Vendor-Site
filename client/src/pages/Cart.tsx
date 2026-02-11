@@ -1,14 +1,17 @@
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "wouter";
-import { Trash2, ArrowRight, ArrowLeft, Loader2, CreditCard } from "lucide-react";
+import { Trash2, ArrowRight, ArrowLeft, Loader2, CreditCard, User, Mail, Phone, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateOrder } from "@/hooks/use-orders";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import type { CustomerInfo } from "@shared/schema";
 
 function CheckoutForm({ orderId, onSuccess }: { orderId: number; onSuccess: () => void }) {
   const stripe = useStripe();
@@ -72,6 +75,16 @@ export default function Cart() {
   const [, setLocation] = useLocation();
   const createOrder = useCreateOrder();
   const { toast } = useToast();
+
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+  const [contactErrors, setContactErrors] = useState<Partial<Record<keyof CustomerInfo, string>>>({});
+  const [showContactForm, setShowContactForm] = useState(false);
+
   const [checkoutState, setCheckoutState] = useState<{
     clientSecret: string;
     orderId: number;
@@ -95,12 +108,27 @@ export default function Cart() {
     }
   }, [stripeConfig?.publishableKey]);
 
-  const handleCheckout = async () => {
+  const validateContactInfo = (): boolean => {
+    const errors: Partial<Record<keyof CustomerInfo, string>> = {};
+    if (!customerInfo.name.trim()) errors.name = "Name is required";
+    if (!customerInfo.email.trim() || !/\S+@\S+\.\S+/.test(customerInfo.email)) errors.email = "Valid email is required";
+    if (!customerInfo.phone.trim() || customerInfo.phone.trim().length < 7) errors.phone = "Valid phone number is required";
+    if (!customerInfo.address.trim() || customerInfo.address.trim().length < 5) errors.address = "Address is required";
+    setContactErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleProceedToContact = () => {
     if (!user) {
       toast({ title: "Please log in", description: "You need to be logged in to checkout", variant: "default" });
       setLocation("/auth");
       return;
     }
+    setShowContactForm(true);
+  };
+
+  const handleCheckout = async () => {
+    if (!validateContactInfo()) return;
 
     try {
       const order = await createOrder.mutateAsync({
@@ -108,7 +136,8 @@ export default function Cart() {
           productId: item.product.id,
           quantity: item.quantity,
           specialRequests: item.specialRequests
-        }))
+        })),
+        customerInfo,
       });
 
       const res = await fetch("/api/create-payment-intent", {
@@ -132,6 +161,7 @@ export default function Cart() {
   const handlePaymentSuccess = () => {
     clearCart();
     setCheckoutState(null);
+    setShowContactForm(false);
     setLocation("/profile");
   };
 
@@ -182,6 +212,119 @@ export default function Cart() {
               onClick={() => setCheckoutState(null)}
               className="text-sm text-muted-foreground"
               data-testid="button-back-to-cart"
+            >
+              <ArrowLeft className="mr-1 h-3 w-3" /> Back to Cart
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showContactForm) {
+    return (
+      <div className="min-h-screen bg-muted/20 py-16 page-enter-active">
+        <div className="container px-4 md:px-6 max-w-lg mx-auto">
+          <h1 className="font-display text-4xl font-bold mb-2">Delivery Details</h1>
+          <p className="text-muted-foreground mb-8">We need your contact info to fulfill your order.</p>
+
+          <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50 space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="customer-name" className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" /> Full Name
+              </Label>
+              <Input
+                id="customer-name"
+                placeholder="Jane Doe"
+                value={customerInfo.name}
+                onChange={(e) => { setCustomerInfo(prev => ({ ...prev, name: e.target.value })); setContactErrors(prev => ({ ...prev, name: undefined })); }}
+                data-testid="input-customer-name"
+              />
+              {contactErrors.name && <p className="text-destructive text-sm" data-testid="error-customer-name">{contactErrors.name}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="customer-email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" /> Email Address
+              </Label>
+              <Input
+                id="customer-email"
+                type="email"
+                placeholder="jane@example.com"
+                value={customerInfo.email}
+                onChange={(e) => { setCustomerInfo(prev => ({ ...prev, email: e.target.value })); setContactErrors(prev => ({ ...prev, email: undefined })); }}
+                data-testid="input-customer-email"
+              />
+              {contactErrors.email && <p className="text-destructive text-sm" data-testid="error-customer-email">{contactErrors.email}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="customer-phone" className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-muted-foreground" /> Phone Number
+              </Label>
+              <Input
+                id="customer-phone"
+                type="tel"
+                placeholder="(555) 123-4567"
+                value={customerInfo.phone}
+                onChange={(e) => { setCustomerInfo(prev => ({ ...prev, phone: e.target.value })); setContactErrors(prev => ({ ...prev, phone: undefined })); }}
+                data-testid="input-customer-phone"
+              />
+              {contactErrors.phone && <p className="text-destructive text-sm" data-testid="error-customer-phone">{contactErrors.phone}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="customer-address" className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" /> Delivery Address
+              </Label>
+              <Input
+                id="customer-address"
+                placeholder="123 Main St, City, State 12345"
+                value={customerInfo.address}
+                onChange={(e) => { setCustomerInfo(prev => ({ ...prev, address: e.target.value })); setContactErrors(prev => ({ ...prev, address: undefined })); }}
+                data-testid="input-customer-address"
+              />
+              {contactErrors.address && <p className="text-destructive text-sm" data-testid="error-customer-address">{contactErrors.address}</p>}
+            </div>
+
+            <div className="pt-4 space-y-3">
+              <div className="border-t pt-4 mb-4">
+                <div className="flex justify-between text-muted-foreground text-sm">
+                  <span>Subtotal</span>
+                  <span>${(subtotal() / 100).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground text-sm mt-1">
+                  <span>Taxes (est.)</span>
+                  <span>${(subtotal() * 0.08 / 100).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg mt-2">
+                  <span>Total</span>
+                  <span>${(subtotal() * 1.08 / 100).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <Button
+                className="w-full text-lg font-semibold rounded-xl"
+                size="lg"
+                onClick={handleCheckout}
+                disabled={createOrder.isPending}
+                data-testid="button-proceed-to-payment"
+              >
+                {createOrder.isPending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
+                ) : (
+                  <>Proceed to Payment <ArrowRight className="ml-2 h-4 w-4" /></>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => setShowContactForm(false)}
+              className="text-sm text-muted-foreground"
+              data-testid="button-back-to-cart-from-contact"
             >
               <ArrowLeft className="mr-1 h-3 w-3" /> Back to Cart
             </Button>
@@ -256,15 +399,10 @@ export default function Cart() {
               <Button 
                 className="w-full text-lg font-semibold rounded-xl" 
                 size="lg"
-                onClick={handleCheckout}
-                disabled={createOrder.isPending}
+                onClick={handleProceedToContact}
                 data-testid="button-proceed-checkout"
               >
-                {createOrder.isPending ? (
-                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
-                ) : (
-                  <>Proceed to Checkout <ArrowRight className="ml-2 h-4 w-4" /></>
-                )}
+                Proceed to Checkout <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
               <div className="mt-6 text-center">

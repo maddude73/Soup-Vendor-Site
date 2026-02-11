@@ -2,7 +2,7 @@ import { db } from "./db";
 import { 
   products, orders, orderItems, 
   type Product, type InsertProduct,
-  type Order, type CartItem
+  type Order, type CartItem, type CustomerInfo
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -15,7 +15,7 @@ export interface IStorage {
   deleteProduct(id: number): Promise<void>;
 
   // Orders
-  createOrder(userId: string, items: CartItem[], totalAmount: number): Promise<Order>;
+  createOrder(userId: string, items: CartItem[], totalAmount: number, customerInfo: CustomerInfo): Promise<Order>;
   getOrders(userId?: string): Promise<(Order & { items: any[] })[]>;
   updateOrderStatus(orderId: number, status: string, stripePaymentIntentId?: string): Promise<Order>;
 }
@@ -44,13 +44,16 @@ export class DatabaseStorage implements IStorage {
     await db.delete(products).where(eq(products.id, id));
   }
 
-  async createOrder(userId: string, items: CartItem[], totalAmount: number): Promise<Order> {
-    // Transactional order creation
+  async createOrder(userId: string, items: CartItem[], totalAmount: number, customerInfo: CustomerInfo): Promise<Order> {
     return await db.transaction(async (tx) => {
       const [order] = await tx.insert(orders).values({
         userId,
         totalAmount,
         status: "pending",
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        customerAddress: customerInfo.address,
       }).returning();
 
       for (const item of items) {

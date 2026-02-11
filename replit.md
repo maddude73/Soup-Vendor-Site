@@ -4,6 +4,7 @@
 A full-stack soup ordering platform where customers can browse weekly soups, place orders, make special requests (with upcharge), and pay online. Site owners can manage products, inventory, and orders from an admin dashboard.
 
 ## Recent Changes
+- Feb 11, 2026: Added customer contact info capture (name, email, phone, address) during checkout; displayed on admin order management page
 - Feb 11, 2026: Stripe integration connected via Replit connector. Real payments with Stripe Elements.
 - Feb 11, 2026: Initial build - schema, API, products, orders, auth, frontend
 

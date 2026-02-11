@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema, type InsertProduct, type Product } from "@shared/schema";
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Package, User, Mail, Phone, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -316,6 +316,7 @@ function OrdersTable() {
               <TableRow>
                 <TableHead>Order</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
@@ -327,6 +328,37 @@ function OrdersTable() {
                 <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
                   <TableCell className="font-mono font-medium">#{order.id}</TableCell>
                   <TableCell className="text-muted-foreground">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col space-y-1 text-sm min-w-[180px]">
+                      {(order as any).customerName && (
+                        <span className="flex items-center gap-1.5 font-medium" data-testid={`text-customer-name-${order.id}`}>
+                          <User className="h-3 w-3 text-muted-foreground shrink-0" />
+                          {(order as any).customerName}
+                        </span>
+                      )}
+                      {(order as any).customerEmail && (
+                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-email-${order.id}`}>
+                          <Mail className="h-3 w-3 shrink-0" />
+                          {(order as any).customerEmail}
+                        </span>
+                      )}
+                      {(order as any).customerPhone && (
+                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-phone-${order.id}`}>
+                          <Phone className="h-3 w-3 shrink-0" />
+                          {(order as any).customerPhone}
+                        </span>
+                      )}
+                      {(order as any).customerAddress && (
+                        <span className="flex items-center gap-1.5 text-muted-foreground" data-testid={`text-customer-address-${order.id}`}>
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          {(order as any).customerAddress}
+                        </span>
+                      )}
+                      {!(order as any).customerName && !(order as any).customerEmail && (
+                        <span className="text-muted-foreground italic">No contact info</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col space-y-1">
                       {order.items.map((item: any) => (

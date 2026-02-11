@@ -19,10 +19,14 @@ export const products = pgTable("products", {
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull(), // Match auth user id type
-  status: text("status").default("pending").notNull(), // pending, paid, fulfilled
-  totalAmount: integer("total_amount").notNull(), // In cents
+  userId: varchar("user_id").notNull(),
+  status: text("status").default("pending").notNull(),
+  totalAmount: integer("total_amount").notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  customerAddress: text("customer_address"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -73,6 +77,14 @@ export type CartItem = {
   specialRequests?: string;
 };
 
+export type CustomerInfo = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+};
+
 export type CreateOrderRequest = {
   items: CartItem[];
+  customerInfo: CustomerInfo;
 };

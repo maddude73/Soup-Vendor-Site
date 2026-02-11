@@ -83,6 +83,12 @@ export const api = {
           quantity: z.number(),
           specialRequests: z.string().optional(),
         })),
+        customerInfo: z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Valid email is required"),
+          phone: z.string().min(7, "Valid phone number is required"),
+          address: z.string().min(5, "Address is required"),
+        }),
       }),
       responses: {
         201: z.custom<typeof orders.$inferSelect>(),
