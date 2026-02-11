@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
-  const featuredProducts = products?.filter(p => p.isActive).slice(0, 3);
+  const featuredSoups = products?.filter(p => p.isActive && p.category === "soup").slice(0, 3);
+  const featuredMerch = products?.filter(p => p.isActive && p.category === "merch").slice(0, 3);
 
   if (isLoading) {
     return (
@@ -94,12 +95,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Menu */}
+      {/* Featured Soups */}
       <section className="py-12 sm:py-24 bg-muted/30">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8 sm:mb-12">
             <div>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">This Week's Menu</h2>
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">This Week's Soups</h2>
               <p className="text-muted-foreground">Freshly made and ready for your table.</p>
             </div>
             <Link href="/menu">
@@ -108,7 +109,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts?.map((product) => (
+            {featuredSoups?.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -120,6 +121,29 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Merch Section */}
+      {featuredMerch && featuredMerch.length > 0 && (
+        <section className="py-12 sm:py-24 bg-background">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8 sm:mb-12">
+              <div>
+                <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">Shop Merch</h2>
+                <p className="text-muted-foreground">Take a piece of the kitchen home with you.</p>
+              </div>
+              <Link href="/menu">
+                <Button variant="ghost" className="hidden md:flex font-bold" data-testid="button-view-merch">Browse All <ArrowRight className="ml-2 h-4 w-4" /></Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredMerch.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
