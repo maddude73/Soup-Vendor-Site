@@ -36,7 +36,7 @@ export default function About() {
               We believe in real food. That means no preservatives, no artificial flavors, and sourcing ingredients from farmers we know by name. We cook with the seasons, celebrating the best produce each time of year has to offer.
             </p>
           </div>
-          <div className="aspect-square bg-muted rounded-3xl overflow-hidden shadow-xl rotate-3 hover:rotate-0 transition-transform duration-500">
+          <div className="aspect-square bg-muted rounded-3xl overflow-hidden shadow-xl rotate-3">
              {/* fresh ingredients on a table */}
             <img 
               src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=800&q=80" 

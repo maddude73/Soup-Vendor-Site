@@ -30,6 +30,7 @@ export default function Menu() {
               className="pl-12 py-6 rounded-full border-2 border-border/50 focus:border-primary/50 bg-white shadow-sm text-lg"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              data-testid="input-search"
             />
           </div>
         </div>

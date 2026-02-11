@@ -268,7 +268,7 @@ export default function Cart() {
               </Button>
 
               <div className="mt-6 text-center">
-                <Link href="/menu" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center">
+                <Link href="/menu" className="text-sm text-muted-foreground inline-flex items-center transition-colors" data-testid="link-continue-shopping">
                   <ArrowLeft className="mr-1 h-3 w-3" /> Continue Shopping
                 </Link>
               </div>

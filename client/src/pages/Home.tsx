@@ -52,7 +52,7 @@ export default function Home() {
               transition={{ delay: 0.4, duration: 0.6 }}
             >
               <Link href="/menu">
-                <Button size="lg" className="rounded-full text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <Button size="lg" className="rounded-full text-lg bg-primary text-primary-foreground border-primary-border shadow-xl" data-testid="button-order-now">
                   Order Now <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -69,21 +69,21 @@ export default function Home() {
       <section className="py-20 bg-background">
         <div className="container px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl hover:bg-muted/50 transition-colors">
+            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl">
               <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent">
                 <Leaf className="h-8 w-8" />
               </div>
               <h3 className="font-display text-xl font-bold">Organic Ingredients</h3>
               <p className="text-muted-foreground">Sourced from local farmers who care about the earth as much as we do.</p>
             </div>
-            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl hover:bg-muted/50 transition-colors">
+            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl">
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                 <ChefHat className="h-8 w-8" />
               </div>
               <h3 className="font-display text-xl font-bold">Chef Crafted</h3>
               <p className="text-muted-foreground">Recipes perfected over years, cooked slowly to unlock deep flavors.</p>
             </div>
-            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl hover:bg-muted/50 transition-colors">
+            <div className="flex flex-col items-center space-y-4 p-6 rounded-2xl">
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
                 <Heart className="h-8 w-8" />
               </div>
@@ -103,7 +103,7 @@ export default function Home() {
               <p className="text-muted-foreground">Freshly made and ready for your table.</p>
             </div>
             <Link href="/menu">
-              <Button variant="link" className="hidden md:flex text-primary font-bold">View Full Menu <ArrowRight className="ml-2 h-4 w-4" /></Button>
+              <Button variant="ghost" className="hidden md:flex font-bold" data-testid="button-view-full-menu">View Full Menu <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </Link>
           </div>
 
@@ -115,7 +115,7 @@ export default function Home() {
           
           <div className="mt-12 text-center md:hidden">
             <Link href="/menu">
-              <Button size="lg" variant="outline" className="w-full">View Full Menu</Button>
+              <Button size="lg" variant="outline" className="w-full" data-testid="button-view-full-menu-mobile">View Full Menu</Button>
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/hooks/use-products";
 import { useOrders } from "@/hooks/use-orders";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +16,7 @@ import { Plus, Pencil, Trash2, Loader2, Package } from "lucide-react";
 import { useLocation } from "wouter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Admin() {
   const { user, isLoading: authLoading } = useAuth();
@@ -263,45 +265,104 @@ function ProductForm({ product, onSuccess }: { product: Product | null, onSucces
 
 function OrdersTable() {
   const { data: orders, isLoading } = useOrders();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  if (isLoading) return <div>Loading orders...</div>;
+  const updateStatus = useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Order Updated", description: "Order status updated successfully." });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin" /></div>;
+
+  const statusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      paid: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      fulfilled: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    };
+    return (
+      <span className={`capitalize px-2.5 py-1 rounded-full text-xs font-bold ${styles[status] || styles.pending}`}>
+        {status}
+      </span>
+    );
+  };
 
   return (
-    <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Items</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders?.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell className="font-mono">#{order.id}</TableCell>
-              <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex flex-col space-y-1">
-                  {order.items.map((item: any) => (
-                    <span key={item.id} className="text-sm text-muted-foreground">
-                      {item.quantity}x Product #{item.productId}
-                    </span>
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell>${(order.totalAmount / 100).toFixed(2)}</TableCell>
-              <TableCell>
-                <span className="capitalize px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
-                  {order.status}
-                </span>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold font-display">Order Management</h2>
+      {orders?.length === 0 ? (
+        <div className="bg-background rounded-xl border p-12 text-center text-muted-foreground">
+          No orders yet.
+        </div>
+      ) : (
+        <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders?.map((order) => (
+                <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
+                  <TableCell className="font-mono font-medium">#{order.id}</TableCell>
+                  <TableCell className="text-muted-foreground">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col space-y-1">
+                      {order.items.map((item: any) => (
+                        <span key={item.id} className="text-sm">
+                          {item.quantity}x {item.product?.name || `Product #${item.productId}`}
+                          {item.specialRequests && (
+                            <span className="text-muted-foreground italic ml-1">({item.specialRequests})</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono font-medium">${(order.totalAmount / 100).toFixed(2)}</TableCell>
+                  <TableCell>{statusBadge(order.status)}</TableCell>
+                  <TableCell className="text-right">
+                    {order.status === "paid" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateStatus.mutate({ orderId: order.id, status: "fulfilled" })}
+                        disabled={updateStatus.isPending}
+                        data-testid={`button-fulfill-order-${order.id}`}
+                      >
+                        <Package className="h-3 w-3 mr-1" /> Fulfill
+                      </Button>
+                    )}
+                    {order.status === "fulfilled" && (
+                      <span className="text-sm text-muted-foreground">Completed</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

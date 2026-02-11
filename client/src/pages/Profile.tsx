@@ -41,8 +41,8 @@ export default function Profile() {
               <User className="h-12 w-12 text-primary" />
             </div>
             <div>
-              <h1 className="text-4xl font-display font-bold">{user.firstName} {user.lastName}</h1>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h1 className="text-4xl font-display font-bold" data-testid="text-user-name">{user.firstName} {user.lastName}</h1>
+              <p className="text-muted-foreground" data-testid="text-user-email">{user.email}</p>
               {user.isAdmin && (
                 <Badge className="mt-2" variant="secondary">Admin Account</Badge>
               )}
@@ -50,9 +50,10 @@ export default function Profile() {
           </div>
           <Button 
             variant="outline" 
-            className="text-destructive border-destructive hover:bg-destructive/10"
+            className="text-destructive border-destructive"
             onClick={() => logout()}
             disabled={isLoggingOut}
+            data-testid="button-logout"
           >
             {isLoggingOut ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <LogOut className="h-4 w-4 mr-2" />}
             Log Out
@@ -74,11 +75,14 @@ export default function Profile() {
           <div className="grid gap-6">
             {orders?.map((order) => (
               <Card key={order.id}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium" data-testid={`text-order-id-${order.id}`}>
                     Order #{order.id} - {format(new Date(order.createdAt!), "MMM d, yyyy")}
                   </CardTitle>
-                  <Badge variant={order.status === "paid" ? "default" : "secondary"}>
+                  <Badge 
+                    variant={order.status === "fulfilled" ? "default" : "secondary"}
+                    data-testid={`badge-order-status-${order.id}`}
+                  >
                     {order.status}
                   </Badge>
                 </CardHeader>

@@ -29,14 +29,14 @@ export function ProductCard({ product }: ProductCardProps) {
   const isSoldOut = product.inventoryCount <= 0;
 
   return (
-    <Link href={`/product/${product.id}`} className="block group h-full">
+    <Link href={`/product/${product.id}`} className="block group h-full" data-testid={`card-product-${product.id}`}>
       <div 
-        className="relative h-full bg-card rounded-3xl overflow-hidden border border-border/50 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col"
+        className="relative h-full bg-card rounded-3xl border border-border/50 shadow-sm transition-all duration-300 hover-elevate flex flex-col"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-muted">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <p className="text-xs font-bold text-primary tracking-widest uppercase mb-1 font-sans">
                 {product.category}
               </p>
-              <h3 className="text-xl font-bold font-display text-foreground leading-tight group-hover:text-primary transition-colors">
+              <h3 className="text-xl font-bold font-display text-foreground leading-tight">
                 {product.name}
               </h3>
             </div>
@@ -75,12 +75,13 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
 
           <Button
-            className={`w-full rounded-xl font-semibold transition-all duration-300 ${
-              isSoldOut ? 'opacity-50 cursor-not-allowed' : 'group-hover:bg-primary group-hover:text-white'
+            className={`w-full rounded-xl font-semibold ${
+              isSoldOut ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             variant={isHovered ? "default" : "secondary"}
             onClick={isSoldOut ? (e) => e.preventDefault() : handleAddToCart}
             disabled={isSoldOut}
+            data-testid={`button-add-to-cart-${product.id}`}
           >
             {isSoldOut ? (
               <>

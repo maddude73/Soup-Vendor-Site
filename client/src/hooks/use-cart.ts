@@ -45,7 +45,13 @@ export const useCart = create<CartState>()(
       })),
       clearCart: () => set({ items: [] }),
       itemCount: () => get().items.reduce((acc, item) => acc + item.quantity, 0),
-      subtotal: () => get().items.reduce((acc, item) => acc + (item.product.price * item.quantity), 0),
+      subtotal: () => get().items.reduce((acc, item) => {
+        let itemTotal = item.product.price * item.quantity;
+        if (item.specialRequests) {
+          itemTotal += 200 * item.quantity;
+        }
+        return acc + itemTotal;
+      }, 0),
     }),
     {
       name: 'soulful-soups-cart',

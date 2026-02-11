@@ -23,11 +23,11 @@ export function Navigation() {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-hand text-xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+        <Link href="/" className="flex items-center space-x-2" data-testid="link-home-logo">
+          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-hand text-xl font-bold shadow-lg">
             S
           </div>
-          <span className="font-display text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
+          <span className="font-display text-2xl font-bold text-foreground tracking-tight">
             Soulful Soups
           </span>
         </Link>
@@ -38,7 +38,8 @@ export function Navigation() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-primary relative group ${
+              data-testid={`link-nav-${link.label.toLowerCase().replace(/\s/g, '-')}`}
+              className={`text-sm font-medium transition-colors relative group ${
                 location === link.href ? "text-primary" : "text-muted-foreground"
               }`}
             >
@@ -54,18 +55,18 @@ export function Navigation() {
         <div className="flex items-center space-x-4">
           {user ? (
              <Link href="/profile">
-               <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+               <Button variant="ghost" size="icon" data-testid="button-profile">
                  <UserIcon className="h-5 w-5 text-foreground" />
                </Button>
              </Link>
           ) : (
             <Link href="/auth">
-              <Button variant="ghost" className="font-medium">Log In</Button>
+              <Button variant="ghost" className="font-medium" data-testid="button-login">Log In</Button>
             </Link>
           )}
           
           <Link href="/cart">
-            <Button variant="outline" size="icon" className="relative border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all">
+            <Button variant="outline" size="icon" className="relative border-2 border-primary/20" data-testid="button-cart">
               <ShoppingBag className="h-5 w-5 text-primary" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-in zoom-in">
@@ -89,7 +90,7 @@ export function Navigation() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="text-lg font-medium hover:text-primary"
+                      className="text-lg font-medium transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
                       {link.label}

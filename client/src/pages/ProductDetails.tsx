@@ -37,7 +37,7 @@ export default function ProductDetails() {
   return (
     <div className="min-h-screen bg-background py-12 page-enter-active">
       <div className="container px-4 md:px-6">
-        <Link href="/menu" className="inline-flex items-center text-muted-foreground hover:text-primary mb-8 font-medium transition-colors">
+        <Link href="/menu" className="inline-flex items-center text-muted-foreground mb-8 font-medium transition-colors" data-testid="link-back-to-menu">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Menu
         </Link>
 
@@ -83,10 +83,11 @@ export default function ProductDetails() {
                 <Label htmlFor="special" className="text-base font-semibold">Special Requests (Optional)</Label>
                 <Textarea 
                   id="special"
-                  placeholder="Extra spicy, no cilantro, etc. (Note: significant changes may incur extra charges at pickup)"
+                  placeholder="Extra spicy, no cilantro, etc. (+$2.00 per item)"
                   className="bg-muted/30 border-2 focus:border-primary/50 resize-none h-32 rounded-xl"
                   value={specialRequest}
                   onChange={(e) => setSpecialRequest(e.target.value)}
+                  data-testid="input-special-requests"
                 />
               </div>
 
@@ -97,17 +98,17 @@ export default function ProductDetails() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="hover:bg-transparent hover:text-primary"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1 || isSoldOut}
+                      data-testid="button-quantity-decrease"
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                    <span className="w-12 text-center font-bold text-lg" data-testid="text-quantity">{quantity}</span>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="hover:bg-transparent hover:text-primary"
+                      data-testid="button-quantity-increase"
                       onClick={() => setQuantity(Math.min(product.inventoryCount, quantity + 1))}
                       disabled={quantity >= product.inventoryCount || isSoldOut}
                     >
@@ -118,9 +119,10 @@ export default function ProductDetails() {
 
                 <Button 
                   size="lg" 
-                  className="flex-1 h-14 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                  className="flex-1 text-lg rounded-xl shadow-lg"
                   onClick={handleAddToCart}
                   disabled={isSoldOut}
+                  data-testid="button-add-to-cart"
                 >
                   <ShoppingBag className="mr-2 h-5 w-5" />
                   {isSoldOut ? "Currently Unavailable" : "Add to Order"}

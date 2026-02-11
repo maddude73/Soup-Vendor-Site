@@ -43,6 +43,7 @@ export default function Auth() {
           <Button 
             className="w-full h-12 text-lg font-medium" 
             onClick={handleLogin}
+            data-testid="button-auth-login"
           >
             Log In or Sign Up
           </Button>

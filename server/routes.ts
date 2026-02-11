@@ -169,6 +169,22 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Update order status (fulfill)
+  app.put("/api/orders/:id/status", isAdmin, async (req, res) => {
+    try {
+      const orderId = Number(req.params.id);
+      const { status } = req.body;
+      if (!["pending", "paid", "fulfilled"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      const order = await storage.updateOrderStatus(orderId, status);
+      res.json(order);
+    } catch (error: any) {
+      console.error("Order status update error:", error);
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
   // Seed Data
   if ((await storage.getProducts()).length === 0) {
     console.log("Seeding database...");
